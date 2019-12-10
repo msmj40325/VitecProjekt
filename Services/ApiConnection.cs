@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using VitecProjekt.Models;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace VitecProjekt.Services
 {
@@ -15,6 +16,7 @@ namespace VitecProjekt.Services
     public interface IApiConnection
     {
         Task<List<Product>> GetAllProductsAsync();
+        Task<Product> GetProduct(int id);
         Task<HttpStatusCode> DeleteProductAsync(int id);
         Task<Product> EditProductAsync(int id, Product product);
 
@@ -34,12 +36,25 @@ namespace VitecProjekt.Services
             return products;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> CreateProductAsync(Product product/*string name, double price, string description*/)
+        [HttpGet]
+        public async Task<Product> GetProduct(int id)
         {
-            HttpResponseMessage response = await Client.PostAsync($"{url}", product);
+            HttpResponseMessage response = await Client.GetAsync($"{url}/{id}");
 
-            return response.StatusCode;
+            string content = await response.Content.ReadAsStringAsync();
+            Product product = JsonConvert.DeserializeObject<Product>(content);
+
+            return product;
+        }
+
+        [HttpPost]
+        public async Task<Product/*ActionResult*/> CreateProductAsync(Product product/*string name, double price, string description*/)
+        {
+            var content = new StringContent(product.ToString(), Encoding.UTF8, "application/json");
+            //var json = JsonConvert.SerializeObject(new { _product = product });
+            HttpResponseMessage response = await Client.PostAsync($"{url}", content);
+
+            return product;
         }
 
         [HttpDelete]
@@ -53,20 +68,10 @@ namespace VitecProjekt.Services
         [HttpPut]
         public async Task<Product> EditProductAsync(int id, Product product)
         {
-            HttpResponseMessage response = await Client.PutAsync($"{url}/{id}", product);
+            //HttpResponseMessage response = await Client.PutAsync($"{url}/{id}", );
 
-            product = await response.Content.ReadAsAsync<Product>();
+            //product = await response.Content.ReadAsAsync<Product>();
             return product;
         }
-
-        //public async Task<Product> GetOne(int id)
-        //{
-        //    string ID = id.ToString();
-        //    HttpResponseMessage response = await Client.GetAsync($"https://localhost:44309/api/product/","{0}", ID);
-        //    Product product = JsonConvert.DeserializeObject(product);
-
-        //    return Product;
-        //}
-
     }
 }

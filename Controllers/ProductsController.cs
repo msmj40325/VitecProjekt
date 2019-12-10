@@ -68,7 +68,7 @@ namespace VitecProjekt.Controllers
             return View(product);
         }
 
-        // GET: Products/Edit/5
+        //GET: Products/Edit/5
         public async Task<IActionResult> Edit(int id, Product product)
         {
             await _apiConnection.EditProductAsync(id, product);
