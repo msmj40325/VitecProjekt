@@ -17,6 +17,7 @@ namespace VitecProjekt.Services
     {
         Task<List<Product>> GetAllProductsAsync();
         Task<Product> GetProduct(int id);
+        Task<Product> CreateProductAsync(Product product);
         Task<HttpStatusCode> DeleteProductAsync(int id);
         Task<Product> EditProductAsync(int id, Product product);
 
@@ -48,11 +49,12 @@ namespace VitecProjekt.Services
         }
 
         [HttpPost]
-        public async Task<Product/*ActionResult*/> CreateProductAsync(Product product/*string name, double price, string description*/)
+        public async Task<Product> CreateProductAsync(Product product)
         {
-            var content = new StringContent(product.ToString(), Encoding.UTF8, "application/json");
-            //var json = JsonConvert.SerializeObject(new { _product = product });
-            HttpResponseMessage response = await Client.PostAsync($"{url}", content);
+            var stringContent = new StringContent(JsonConvert.SerializeObject(product), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await Client.PostAsync($"{url}", stringContent);
+            response.EnsureSuccessStatusCode();
 
             return product;
         }

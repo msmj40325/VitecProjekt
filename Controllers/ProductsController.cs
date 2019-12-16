@@ -49,6 +49,7 @@ namespace VitecProjekt.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
+            //await _apiConnection.c(id, product);
             return View();
         }
 
@@ -61,8 +62,9 @@ namespace VitecProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
+                await _apiConnection.CreateProductAsync(product);
+                //_context.Add(product);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
