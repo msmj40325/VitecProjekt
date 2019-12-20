@@ -36,8 +36,8 @@ namespace VitecProjekt.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Product
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var product = await _apiConnection.GetProduct((int)id);
+
             if (product == null)
             {
                 return NotFound();
@@ -49,7 +49,6 @@ namespace VitecProjekt.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            //await _apiConnection.c(id, product);
             return View();
         }
 
@@ -63,62 +62,75 @@ namespace VitecProjekt.Controllers
             if (ModelState.IsValid)
             {
                 await _apiConnection.CreateProductAsync(product);
-                //_context.Add(product);
-                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
         }
 
         //GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int id, Product product)
+        public async Task<IActionResult> Edit(int? id)
         {
-            await _apiConnection.EditProductAsync(id, product);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _apiConnection.GetProduct((int)id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
             return View(product);
         }
 
         // POST: Products/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Price,Description")] Product product)
-        //{
-        //    if (id != product.ProductId)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int? id, [Bind("ProductId,Name,Price,Description")] Product product)
+        {
+            if (id != product.ProductId)
+            {
+                return NotFound();
+            }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(product);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!ProductExists(product.ProductId))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(product);
-        //}
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _apiConnection.EditProductAsync((int)id, product);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProductExists(product.ProductId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(product);
+        }
 
         // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
         {
-            
-            await _apiConnection.DeleteProductAsync(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            return View("Index");
+            var product = await _apiConnection.DeleteProductAsync((int)id);
+
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Products/Delete/5
@@ -126,9 +138,8 @@ namespace VitecProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Product.FindAsync(id);
-            _context.Product.Remove(product);
-            await _context.SaveChangesAsync();
+            await _apiConnection.DeleteProductAsync(id);
+
             return RedirectToAction(nameof(Index));
         }
 

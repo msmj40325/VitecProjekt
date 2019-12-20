@@ -22,6 +22,7 @@ namespace VitecProjekt.Services
         Task<Product> EditProductAsync(int id, Product product);
 
     }
+    
     public class ApiConnection : IApiConnection
     {
         string url = "https://localhost:44309/api/product";
@@ -70,9 +71,9 @@ namespace VitecProjekt.Services
         [HttpPut]
         public async Task<Product> EditProductAsync(int id, Product product)
         {
-            //HttpResponseMessage response = await Client.PutAsync($"{url}/{id}", );
+            HttpResponseMessage response = await Client.PutAsJsonAsync($"{url}/{id}", product);
+            response.EnsureSuccessStatusCode();
 
-            //product = await response.Content.ReadAsAsync<Product>();
             return product;
         }
     }
