@@ -25,7 +25,7 @@ namespace VitecProjekt.Services
     
     public class ApiConnection : IApiConnection
     {
-        string url = "https://localhost:44309/api/product";
+        string url = "https://vitecwebapi.azurewebsites.net"/*"https://localhost:44309/api/product"*/;
         HttpClient Client = new HttpClient();
 
         public async Task<List<Product>> GetAllProductsAsync()
